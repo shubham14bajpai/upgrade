@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jiva-operator
+  namespace: openebs
+  labels:
+    openebs.io/component-name: jiva-operator
+    openebs.io/version: testversion
+    name: jiva-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jiva-operator
+  template:
+    metadata:
+      labels:
+        name: jiva-operator
+        openebs.io/component-name: jiva-operator
+        openebs.io/version: testversion
+    spec:
+      serviceAccountName: jiva-operator
+      containers:
+        - name: jiva-operator
+          # Replace this with the built image name
+          image: imageorg/jiva-operator:testimage
+          command:
+          - jiva-operator
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OPENEBS_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "jiva-operator"
+            - name: OPENEBS_IO_JIVA_CONTROLLER_IMAGE
+              value: "imageorg/jiva:testimage"
+            - name: OPENEBS_IO_JIVA_REPLICA_IMAGE
+              value: "imageorg/jiva:testimage"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8282
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+      terminationGracePeriodSeconds: 10

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright © 2020 The OpenEBS Authors
+# Copyright © 2021 The OpenEBS Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,13 +62,13 @@ export TEST_VERSION="${TEST_VERSION#v}"
 echo "Testing upgrade for org: $IMAGE_ORG version: $TEST_VERSION imagetag: $TEST_IMAGE_TAG"
 
 # setup openebs & cstor v1 for migration 
-./ci/upgrade/setup.sh || exit 1
+./ci/upgrade/jiva/setup.sh || exit 1
 # run migration tests
-./ci/upgrade/test.sh 
+./ci/upgrade/jiva/test.sh 
 if [[ $? != 0 ]]; then
   kubectl logs --tail=50 -l job-name=upgrade-pool -n openebs
   kubectl logs --tail=50 -l job-name=upgrade-volume -n openebs
   exit 1
 fi
 
-rm ./ci/upgrade/volume.yaml ./ci/upgrade/application.yaml
+rm ./ci/upgrade/jiva/volume.yaml
